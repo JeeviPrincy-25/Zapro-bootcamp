@@ -20,6 +20,7 @@ def add_book(books)
     year=gets.chomp
     print "Genre : "
     genre=gets.chomp
+    genre = "Uncategorized" if genre.strip == ""
 
     books.push({
         title:title,author:author,year:year,genre:genre
@@ -47,6 +48,24 @@ def delete_book(books)
     books.reject!{|b| b[:title].downcase==title.downcase}
 end
 
+def browse_by_genre(books)
+    print "Enter genre : "
+    g = gets.chomp.downcase
+
+    results = books.select do |b|
+        b[:genre].downcase == g
+    end
+
+    if results.empty?
+        puts "No books found in that genre."
+    else
+        puts "\nBooks in '#{g}':"
+        results.each_with_index do |b, i|
+            puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+        end
+    end
+end
+
 loop do
     puts "--Library Management System--"
     puts "0. Spanish Menu"
@@ -57,6 +76,7 @@ loop do
     puts "5. Delete a book"
     puts "6. Exit"
     puts "7. List All Books"
+    puts "8. Browse by Genre"
     print "Enter your choice : "
     ch=gets.chomp
     case ch
@@ -77,6 +97,8 @@ loop do
         break
     when "7"
         list_books(books)
+    when "8"
+        browse_by_genre(books)
     else
         puts "Invalid Choice"
     end
