@@ -45,7 +45,11 @@ end
 def delete_book(books)
     print "Title : "
     title=gets.chomp
-    books.reject!{|b| b[:title].downcase==title.downcase}
+    if books.reject!{|b| b[:title].downcase==title.downcase}
+        puts "Book deleted"
+    else
+        puts "Book not found"
+    end
 end
 
 def browse_by_genre(books)
