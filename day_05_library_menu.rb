@@ -14,10 +14,13 @@ end
 def add_book(books)
     print "Title : "
     title=gets.chomp
+    return unless validate_input(title, "Title")
     print "Author : "
     author=gets.chomp
+    return unless validate_input(author, "Author")
     print "Year : "
     year=gets.chomp
+    return unless validate_input(year, "Year")
     print "Genre : "
     genre=gets.chomp
     genre = "Uncategorized" if genre.strip == ""
@@ -31,14 +34,14 @@ end
 def list_first_3(books)
     puts "\nList of First 3 Books"
     books.first(3).each_with_index do |b,i|
-        puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+        display_book(b,i)
     end
 end
 
 def list_books(books)
     puts "\nList All Books"
     books.each_with_index do |b,i|
-        puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+        display_book(b,i)
     end
 end
 
@@ -63,59 +66,54 @@ def browse_by_genre(books)
     else
         puts "\nBooks in '#{g}':"
         results.each_with_index do |b, i|
-            puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+            display_book(b,i)
         end
     end
 end
 
 def search_book(books)
     print "Enter Title : "
-    t = gets.chomp.downcase
+    t = gets.chomp.strip
 
-    results = books.select {|b| b[:title].downcase == t}
-
-    if results.empty?
-        puts "No books found in that Title."
-    else
-        puts "\nBooks in '#{t}':"
-        results.each_with_index do |b, i|
-            puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
-        end
-    end
-end
-
-def books_between_years(books)
-    print "Enter start year: "
-    start_year = gets.chomp.to_i
-
-    print "Enter end year: "
-    end_year = gets.chomp.to_i
-
-    if end_year < start_year
-        puts "Invalid range."
-        return
-    end
-
-    results = books.select { |b|
-        b[:year].to_i >= start_year && b[:year].to_i <= end_year
+    book = books.find { |b|
+        b[:title].downcase == t.downcase
     }
 
-    if results.empty?
-        puts "No books found in this range."
+    if book
+        display_book(book, 0)
     else
-        sorted = results.sort_by { |b| b[:year].to_i }
-
-        puts "\nBooks between years:"
-        sorted.each_with_index do |b, i|
-            puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
-        end
+        puts "No books found in that Title."
     end
 end
 
-def display_book(book)
-    book.each_with_index do |b, i|
-        puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+def book_summary(books)
+    if books.empty?
+        puts "No Book in the Library"
+        return
+    else
+        tot=books.length
+        recent=books.last
+        old=books.min_by{|b| b[:year].to_i}
+        auth=books.map{|b| b[:author]}.uniq
+        after_2000=books.count{|b| b[:year].to_i>2000}
+        puts "--Library Summary--"
+        puts "Total Books : #{tot}"
+        puts "Most Recent Book : #{recent}"
+        puts "Oldest Book : #{old}"
+        puts "Unique Authors : #{auth}"
     end
+end
+
+def display_book(b,i)
+    puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+end
+
+def validate_input(value, field_name)
+    if value.strip.empty?
+        puts "#{field_name} cannot be blank."
+        return false
+    end
+    true
 end
 
 def show_menu
@@ -129,7 +127,7 @@ def show_menu
     puts "6. Exit"
     puts "7. List All Books"
     puts "8. Browse by Genre"
-    puts "9. Books between years"
+    puts "9. Library Summary"
 end
 
 loop do
@@ -157,7 +155,7 @@ loop do
     when "8"
         browse_by_genre(books)
     when "9"
-        books_between_years(books)
+        book_summary(books)
     else
         puts "Invalid Choice"
     end
