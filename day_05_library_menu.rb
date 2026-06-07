@@ -11,6 +11,36 @@ def show_spanish_menu
   puts "\nPress Enter to return to the main menu"
   gets
 end
+
+def update_book_title(books)
+    print "Enter current title: "
+    old_title = gets.chomp.strip
+
+    book = books.find { |b|
+        b[:title].downcase == old_title.downcase
+    }
+
+    if book.nil?
+        puts "No book found with that title."
+        return
+    end
+
+    print "Enter new title: "
+    new_title = gets.chomp.strip
+
+    return unless validate_input(new_title, "Title")
+
+    puts "\nRename '#{book[:title]}' -> '#{new_title}'? (y/n)"
+    confirm = gets.chomp.downcase
+
+    if confirm == "y"
+        book[:title] = new_title
+        puts "Book title updated successfully!"
+    else
+        puts "Update cancelled."
+    end
+end
+
 def add_book(books)
     print "Title : "
     title=gets.chomp
@@ -144,7 +174,7 @@ loop do
     when "3"
         search_book(books)
     when "4"
-        puts "Update book - coming soon!"
+        update_book_title(books)
     when "5"
         delete_book(books)
     when "6"
