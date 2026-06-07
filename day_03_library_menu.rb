@@ -88,6 +88,21 @@ def search_book(books)
     end
 end
 
+def book_summary(books)
+    if books.empty?
+        puts "No Book in the Library"
+        return
+    else
+        tot=books.length
+        recent=books.last
+        old=books.min_by{|b| b[:year]}
+        puts "--Library Summary--"
+        puts "Total Books : #{tot}"
+        puts "Most Recent Book : #{recent}"
+        puts "Oldest Book : #{old}"
+    end
+end
+
 def show_menu
     puts "--Library Management System--"
     puts "0. Spanish Menu"
@@ -99,6 +114,7 @@ def show_menu
     puts "6. Exit"
     puts "7. List All Books"
     puts "8. Browse by Genre"
+    puts "9. Library Summary"
 end
 
 loop do
@@ -125,6 +141,8 @@ loop do
         list_books(books)
     when "8"
         browse_by_genre(books)
+    when "9"
+        book_summary(books)
     else
         puts "Invalid Choice"
     end
