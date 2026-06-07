@@ -84,22 +84,31 @@ def search_book(books)
     end
 end
 
-def book_summary(books)
-    if books.empty?
-        puts "No Book in the Library"
+def books_between_years(books)
+    print "Enter start year: "
+    start_year = gets.chomp.to_i
+
+    print "Enter end year: "
+    end_year = gets.chomp.to_i
+
+    if end_year < start_year
+        puts "Invalid range."
         return
+    end
+
+    results = books.select { |b|
+        b[:year].to_i >= start_year && b[:year].to_i <= end_year
+    }
+
+    if results.empty?
+        puts "No books found in this range."
     else
-        tot=books.length
-        recent=books.last
-        old=books.min_by{|b| b[:year]}
-        auth=books.map{|b| b[:author]}.uniq
-        after_2000=books.count{|b| b[:year].to_i>2000}
-        puts "--Library Summary--"
-        puts "Total Books : #{tot}"
-        puts "Most Recent Book : #{recent}"
-        puts "Oldest Book : #{old}"
-        puts "Unique Authors : #{auth}"
-        puts "Book After 2000 year : #{after_2000}"
+        sorted = results.sort_by { |b| b[:year].to_i }
+
+        puts "\nBooks between years:"
+        sorted.each_with_index do |b, i|
+            puts "#{i+1}. #{b[:title]} - #{b[:author]} (#{b[:year]})"
+        end
     end
 end
 
@@ -114,7 +123,7 @@ def show_menu
     puts "6. Exit"
     puts "7. List All Books"
     puts "8. Browse by Genre"
-    puts "9. Library Summary"
+    puts "9. Books between years"
 end
 
 loop do
@@ -142,7 +151,7 @@ loop do
     when "8"
         browse_by_genre(books)
     when "9"
-        book_summary(books)
+        books_between_years(books)
     else
         puts "Invalid Choice"
     end
