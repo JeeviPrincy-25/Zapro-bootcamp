@@ -11,7 +11,6 @@ class Book
     puts "Author : #{@author}"
     puts "Year   : #{@year}"
     puts "Genre  : #{@genre}"
-    puts "Age    : #{age} years"
   end
   def age
     Time.now.year - @year
@@ -136,14 +135,12 @@ def book_summary(books)
     else
         tot=books.length
         recent=books.last
-        recent_books = books.count { |b| b.recent? }
         old=books.min_by{|b| b.year}
         auth=books.map{|b| b.author}.uniq
         after_2000=books.count{|b| b.year>2000}
         puts "--Library Summary--"
         puts "Total Books : #{tot}"
         puts "Most Recent Book : #{recent}"
-        puts "Recent Books : #{recent_books}"
         puts "Oldest Book : #{old}"
         puts "Unique Authors : #{auth}"
         puts "Books After 2000 : #{after_2000}"
@@ -176,8 +173,6 @@ loop do
     print "Enter your choice : "
     ch=gets.chomp
     case ch
-    when "0"
-        show_spanish_menu
     when "1"
         add_book(books)
     when "2"
