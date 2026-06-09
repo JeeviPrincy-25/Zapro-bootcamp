@@ -65,22 +65,25 @@ class Library
             false
         end
     end
-    def summary
+    def stats
         if @books.empty?
-            puts "No Book in the Library"
-            return
+            return {
+                total: 0,
+                by_genre: {},
+                average_year: 0
+            }
         end
-        tot = @books.length
-        recent = @books.last
-        old = @books.min_by(&:year)
-        auth = @books.map(&:author).uniq
-        after_2000 = @books.count { |b| b.year > 2000 }
-        puts "--Library Summary--"
-        puts "Total Books : #{tot}"
-        puts "Most Recent Book : #{recent}"
-        puts "Oldest Book : #{old}"
-        puts "Unique Authors : #{auth}"
-        puts "Books After 2000 : #{after_2000}"
+        genres = {}
+        @books.each do |book|
+            genres[book.genre] ||= 0
+            genres[book.genre] += 1
+        end
+        avg_year = (@books.sum(&:year).to_f / @books.length).round
+        {
+            total: @books.length,
+            by_genre: genres,
+            average_year: avg_year
+        }
     end
 end
 
@@ -118,7 +121,7 @@ def show_menu
     puts "6. Exit"
     puts "7. List All Books"
     puts "8. Browse by Genre"
-    puts "9. Library Summary"
+    puts "9. Statistics"
 end
 
 loop do
@@ -131,13 +134,13 @@ loop do
     when "1"
         print "Title : "
         title=gets.chomp
-        return unless validate_input(title, "Title")
+        next unless validate_input(title, "Title")
         print "Author : "
         author=gets.chomp
-        return unless validate_input(author, "Author")
+        next unless validate_input(author, "Author")
         print "Year : "
         year=gets.chomp
-        return unless validate_input(year, "Year")
+        next unless validate_input(year, "Year")
         print "Genre : "
         genre=gets.chomp
         genre = "Uncategorized" if genre.strip == ""
@@ -159,7 +162,7 @@ loop do
         old_title = gets.chomp.strip
         print "Enter new title: "
         new_title = gets.chomp.strip
-        return unless validate_input(new_title, "Title")
+        next unless validate_input(new_title, "Title")
         if library.update_title(old_title, new_title)
             puts "Book title updated successfully!"
         else
@@ -186,7 +189,11 @@ loop do
             end
         end
     when "9"
-        library.summary
+        stats = library.stats
+        puts "-- Library Stats --"
+        puts "Total Books : #{stats[:total]}"
+        puts "By Genre : #{stats[:by_genre]}"
+        puts "Average Year : #{stats[:average_year]}"
     else
         puts "Invalid Choice"
     end
