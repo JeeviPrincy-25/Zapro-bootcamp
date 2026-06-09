@@ -18,7 +18,23 @@ module Searchable
     end
 end
 
+module Exportable
+    def to_csv_row
+        fields = [title, author, year, genre]
+        fields.map! do |field|
+            value = field.to_s
+            if value.include?(",")
+                "\"#{value}\""
+            else
+                value
+            end
+        end
+        fields.join(",")
+    end
+end
+
 class Book
+    include Exportable
     include Comparable
     include Displayable
     attr_accessor :title, :author, :year, :genre
@@ -134,7 +150,7 @@ def show_menu
     puts "7. List All Books"
     puts "8. Browse by Genre"
     puts "9. Statistics"
-    puts "10. Sort Books By Year"
+    puts "10. Export Book to Clipboard format"
 end
 
 loop do
@@ -207,9 +223,19 @@ loop do
         puts "Total Books : #{stats[:total]}"
         puts "By Genre : #{stats[:by_genre]}"
         puts "Average Year : #{stats[:average_year]}"
-    when "10"
+        puts "Sort Books By Year"
         library.books.sort.each do |book|
             puts book
+        end
+    when "10"
+        print "Enter Title : "
+        title = gets.chomp
+        book = library.find(title)
+        if book
+            puts "\nCSV Format:"
+            puts book.to_csv_row
+        else
+            puts "No book found."
         end
     else
         puts "Invalid Choice"
