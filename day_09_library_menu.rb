@@ -75,6 +75,20 @@ class DigitalBook < Book
     end
 end
 
+class AudioBook < Book
+    attr_accessor :duration_minutes
+    def initialize(title, author, year, genre, duration_minutes)
+        super(title, author, year, genre)
+        @duration_minutes = duration_minutes.to_i
+    end
+    def display
+        super
+        hours = @duration_minutes / 60
+        minutes = @duration_minutes % 60
+        puts "Duration: #{hours}h #{minutes}m"
+    end
+end
+
 class Library
     include Searchable
     attr_reader :books
@@ -150,14 +164,6 @@ def show_spanish_menu
   gets
 end
 
-def validate_input(value, field_name)
-    if value.strip.empty?
-        puts "#{field_name} cannot be blank."
-        return false
-    end
-    true
-end
-
 def show_menu
     puts "--Library Management System--"
     puts "0. Spanish Menu"
@@ -170,6 +176,28 @@ def show_menu
     puts "7. List All Books"
     puts "8. Browse by Genre"
     puts "9. Add a Digital Book"
+    puts "10. Add an Audio Book"
+end
+
+def get_validated_input(prompt, field_name, numeric_only = false, positive_only = false)
+    print prompt
+    input = gets.chomp.strip
+    raise InvalidInputError, "#{field_name} cannot be blank." if input.empty?
+    if numeric_only || positive_only
+        raise InvalidInputError, "#{field_name} must be a valid number." unless input =~ /^\d+$/
+        raise InvalidInputError, "#{field_name} must be a positive number greater than 0." if positive_only && input.to_i <= 0
+    end
+    input
+end
+
+def get_base_book_inputs
+    title  = get_validated_input("Title : ", "Title")
+    author = get_validated_input("Author : ", "Author")
+    year   = get_validated_input("Year : ", "Year", true)
+    print "Genre : "
+    genre = gets.chomp.strip
+    genre = "Uncategorized" if genre.empty?
+    [title, author, year, genre]
 end
 
 begin
@@ -181,20 +209,8 @@ loop do
     when "0"
         show_spanish_menu
     when "1"
-        print "Title : "
-        title=gets.chomp
-        next unless validate_input(title, "Title")
-        print "Author : "
-        author=gets.chomp
-        next unless validate_input(author, "Author")
-        print "Year : "
-        year=gets.chomp
-        next unless validate_input(year, "Year")
-        raise InvalidInputError, "Year must be a number." unless year =~ /^\d+$/
-        print "Genre : "
-        genre=gets.chomp
-        genre = "Uncategorized" if genre.strip == ""
-        library.add(Book.new(title,author,year,genre))
+        title, author, year, genre = get_base_book_inputs
+        library.add(Book.new(title, author, year, genre))
     when "2"
         puts "First 3 Books"
         library.list(3)
@@ -210,9 +226,7 @@ loop do
     when "4"
         print "Enter current title: "
         old_title = gets.chomp.strip
-        print "Enter new title: "
-        new_title = gets.chomp.strip
-        next unless validate_input(new_title, "Title")
+        new_title = get_validated_input("Enter new title: ", "Title")
         if library.update_title(old_title, new_title)
             puts "Book title updated successfully!"
         else
@@ -239,23 +253,13 @@ loop do
             end
         end
     when "9"
-        print "Title : "
-        title = gets.chomp
-        next unless validate_input(title, "Title")
-        print "Author : "
-        author = gets.chomp
-        next unless validate_input(author, "Author")
-        print "Year : "
-        year = gets.chomp
-        next unless validate_input(year, "Year")
-        raise InvalidInputError, "Year must be a number." unless year =~ /^\d+$/
-        print "Genre : "
-        genre = gets.chomp
-        genre = "Uncategorized" if genre.strip == ""
-        print "URL : "
-        url = gets.chomp
-        next unless validate_input(url, "URL")
+        title, author, year, genre = get_base_book_inputs
+        url = get_validated_input("URL : ", "URL")
         library.add(DigitalBook.new(title, author, year, genre, url))
+    when "10"
+        title, author, year, genre = get_base_book_inputs
+        duration = get_validated_input("Duration (minutes) : ", "Duration", false, true)
+        library.add(AudioBook.new(title, author, year, genre, duration))
     else
         puts "Invalid Choice"
     end
