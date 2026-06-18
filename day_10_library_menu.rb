@@ -1,4 +1,5 @@
 require 'csv'
+require 'fileutils'
 class BookNotFoundError < StandardError
   def initialize(title)
     super("Book not found: #{title}")
@@ -279,6 +280,10 @@ loop do
         title=gets.chomp
         library.delete(title)
     when "6"
+        if File.exist?(SAVE_FILE)
+            FileUtils.cp(SAVE_FILE, "books_backup.csv")
+            puts "Backup created: books_backup.csv"
+        end
         save_library(library)
         puts "Goodbye!"
         break
